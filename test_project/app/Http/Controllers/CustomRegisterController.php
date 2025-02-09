@@ -25,13 +25,19 @@ class CustomRegisterController extends Controller
         ]);
 
         $email = $request->email;
-        $password = \Hash::make($request->password);
+        if (!Hash::needsRehash($request->password)) {
+            $password = Hash::make($request->password);
+        } else {
+            $password = $request->password;
+        }
+        $id = $request->user_id;
 
         // Handle domain-based logic
         if (str_contains($email, '@studentdomain.com')) {
             $user = Student::create([
                 'name' => $request->name,
                 'email' => $email,
+                'StudentID' => $id,
                 'password' => $password,
             ]);
             auth('student')->login($user);
@@ -40,6 +46,7 @@ class CustomRegisterController extends Controller
             $user = Instructor::create([
                 'name' => $request->name,
                 'email' => $email,
+                'InstructorID' => $id,
                 'password' => $password,
             ]);
             auth('instructor')->login($user);

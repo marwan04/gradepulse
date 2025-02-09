@@ -1,60 +1,77 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+@extends('layouts.app')
 
-        <x-validation-errors class="mb-4" />
+@section('title', 'Register for Grade Pulse')
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+@section('content')
+    <section class="hero d-flex align-items-center justify-content-center" style="height: 100vh;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body p-4">
+                            <h2 class="text-center text-primary fw-bold mb-3">Create an Account</h2>
+                            <p class="text-center text-muted">Sign up to get started with Grade Pulse</p>
 
-            <div>
-                <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            </div>
+                            <!-- Registration Form -->
+                            <form method="POST" action="{{ route('register') }}">
+                                @csrf
 
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            </div>
+                                <!-- Full Name -->
+                                <div class="mb-3">
+                                    <label for="name" class="form-label fw-bold">Full Name</label>
+                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autofocus>
+                                    @error('name')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
+                                <!-- ID Field -->
+                                <div class="mb-3">
+                                    <label for="user_id" class="form-label fw-bold">ID</label>
+                                    <input id="user_id" type="text" class="form-control @error('user_id') is-invalid @enderror" name="user_id" value="{{ old('user_id') }}" required>
+                                    @error('user_id')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            </div>
+                                <!-- Email -->
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Email Address</label>
+                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-            @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                <div class="mt-4">
-                    <x-label for="terms">
-                        <div class="flex items-center">
-                            <x-checkbox name="terms" id="terms" required />
+                                <!-- Password -->
+                                <div class="mb-3">
+                                    <label for="password" class="form-label fw-bold">Password</label>
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
+                                    @error('password')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-                            <div class="ms-2">
-                                {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                        'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">'.__('Terms of Service').'</a>',
-                                        'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">'.__('Privacy Policy').'</a>',
-                                ]) !!}
-                            </div>
+                                <!-- Confirm Password -->
+                                <div class="mb-3">
+                                    <label for="password-confirm" class="form-label fw-bold">Confirm Password</label>
+                                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
+                                </div>
+
+                                <!-- Register Button -->
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-accent">Register</button>
+                                </div>
+
+                                <!-- Already have an account -->
+                                <p class="text-center mt-3">
+                                    Already have an account? <a href="{{ route('login') }}" class="text-primary fw-bold">Sign In</a>
+                                </p>
+                            </form>
                         </div>
-                    </x-label>
+                    </div>
                 </div>
-            @endif
-
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                    {{ __('Already registered?') }}
-                </a>
-
-                <x-button class="ms-4">
-                    {{ __('Register') }}
-                </x-button>
             </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout>
+        </div>
+    </section>
+@endsection

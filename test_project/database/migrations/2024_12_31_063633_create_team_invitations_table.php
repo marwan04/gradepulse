@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('team_invitations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('team_id')->constrained()->cascadeOnDelete();
-            $table->string('email');
-            $table->string('role')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('team_invitations')) { // Check if the table already exists
+            Schema::create('team_invitations', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('team_id')->constrained()->cascadeOnDelete();
+                $table->string('email');
+                $table->string('role')->nullable();
+                $table->timestamps();
 
-            $table->unique(['team_id', 'email']);
-        });
+                $table->unique(['team_id', 'email']);
+            });
+        }
     }
 
     /**
@@ -27,6 +29,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('team_invitations');
+        if (Schema::hasTable('team_invitations')) {
+            Schema::dropIfExists('team_invitations');
+        }
     }
 };

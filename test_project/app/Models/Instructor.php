@@ -16,6 +16,7 @@ class Instructor extends Authenticatable
      */
     protected $table = 'Instructor';
     protected $fillable = [
+        'InstructorID',
         'name',
         'email',
         'password',

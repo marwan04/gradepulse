@@ -1,47 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
-    @vite('resources/css/app.css') <!-- Ensure TailwindCSS is loaded -->
-</head>
-<body class="bg-gray-50">
-    <!-- Include Navbar -->
-    @include('components.navbar')
+@extends('layouts.app')
 
-    <!-- Main Container -->
-    <div class="container mx-auto mt-8 p-6">
-        <!-- Header -->
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
+@section('title', 'Student Dashboard')
 
-        <!-- Grid Layout for Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Quick Stats Card -->
-            <div class="bg-blue-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-blue-600">
-                <h2 class="text-xl font-bold text-blue-700">Your Plan</h2>
-                <p class="mt-2 text-gray-700">Computer Science</p>
-                <p class="text-sm text-gray-600 mt-1">Credits Completed: 60/120</p>
-            </div>
-
-            <!-- Progress Tracker -->
-            <div class="bg-green-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-green-600">
-                <h2 class="text-xl font-bold text-green-700">Academic Progress</h2>
-                <div class="mt-3 bg-gray-200 rounded-full h-4">
-                    <div class="bg-green-500 h-4 rounded-full" style="width: 50%;"></div>
+@section('content')
+    <section class="container mt-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-circle text-primary" style="font-size: 60px;"></i>
+                        <h4 class="mt-2">{{ Auth::user()->name }}</h4>
+                        <p class="text-muted">Student</p>
+                        <hr>
+                        <ul class="nav flex-column">
+                            <li class="nav-item"><a class="nav-link text-primary fw-bold" href="#">📚 My Courses</a></li>
+                            <li class="nav-item"><a class="nav-link text-primary fw-bold" href="#">📄 Assignments</a></li>
+                            <li class="nav-item"><a class="nav-link text-primary fw-bold" href="#">📊 Grade Reports</a></li>
+                            <li class="nav-item"><a class="nav-link text-primary fw-bold" href="#">⚙️ Settings</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="mt-2 text-sm text-gray-600">50% completed</p>
             </div>
 
-            <!-- Reports Section -->
-            <div class="bg-yellow-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-yellow-500">
-                <h2 class="text-xl font-bold text-yellow-700">Reports</h2>
-                <p class="mt-2 text-gray-700">View and download your performance reports.</p>
-                <a href="#" class="mt-4 inline-block text-yellow-700 hover:text-yellow-900 font-medium transition-colors duration-300">
-                    View Reports
-                </a>
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h2 class="fw-bold text-primary">📊 Student Dashboard</h2>
+                        <p>Welcome back, <strong>{{ Auth::user()->name }}</strong>! Here's an overview of your academic performance.</p>
+                        <hr>
+
+                        <!-- Student Statistics -->
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="card shadow-sm border-0 p-3">
+                                    <h4 class="text-primary">📚 Courses Enrolled</h4>
+                                    <h3 class="fw-bold">5</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card shadow-sm border-0 p-3">
+                                    <h4 class="text-success">✅ Assignments Completed</h4>
+                                    <h3 class="fw-bold">12</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card shadow-sm border-0 p-3">
+                                    <h4 class="text-warning">📊 GPA</h4>
+                                    <h3 class="fw-bold">3.8</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Courses Section -->
+                        <div class="mt-4">
+                            <h4 class="fw-bold">📚 My Courses</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold">Mathematics</h5>
+                                            <p class="text-muted">Prof. John Doe</p>
+                                            <a href="#" class="btn btn-primary btn-sm">View Course</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold">Computer Science</h5>
+                                            <p class="text-muted">Dr. Jane Smith</p>
+                                            <a href="#" class="btn btn-primary btn-sm">View Course</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold">Physics</h5>
+                                            <p class="text-muted">Dr. Albert Einstein</p>
+                                            <a href="#" class="btn btn-primary btn-sm">View Course</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="mt-4">
+                            <h4 class="fw-bold">📌 Quick Actions</h4>
+                            <div class="d-flex flex-wrap">
+                                <a href="#" class="btn btn-outline-primary m-2">View Grades</a>
+                                <a href="#" class="btn btn-outline-success m-2">Submit Assignment</a>
+                                <a href="#" class="btn btn-outline-warning m-2">Download Report</a>
+                                <a href="#" class="btn btn-outline-danger m-2">Contact Instructor</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
+
         </div>
-    </div>
-</body>
-</html>
+    </section>
+@endsection
