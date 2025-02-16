@@ -1,64 +1,56 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Section;
 
 class SectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $sections = Section::all();
+        return view('instructor.sections.index', compact('sections'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('instructor.sections.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'SectionName' => 'required|string|max:255',
+            'CourseID' => 'required|exists:courses,id',
+        ]);
+
+        Section::create($request->all());
+
+        return redirect()->route('instructor.sections.index')->with('success', 'Section created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Section $section)
     {
-        //
+        return view('instructor.sections.edit', compact('section'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Section $section)
     {
-        //
+        $request->validate([
+            'SectionName' => 'required|string|max:255',
+            'CourseID' => 'required|exists:courses,id',
+        ]);
+
+        $section->update($request->all());
+
+        return redirect()->route('instructor.sections.index')->with('success', 'Section updated successfully!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Section $section)
     {
-        //
-    }
+        $section->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('instructor.sections.index')->with('success', 'Section deleted successfully!');
     }
 }
+
