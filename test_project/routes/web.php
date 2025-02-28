@@ -5,9 +5,10 @@ use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\CustomRegisterController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\InstructorDashboardController;
-use App\Http\Controllers\InstructorController;
-use App\Http\Controllers\CourseController; // Ensure CourseController is properly imported
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\SectionController;
+use App\Http\Controllers\InstructorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,7 @@ Route::post('/register', [CustomRegisterController::class, 'register']);
 
 /*
 |--------------------------------------------------------------------------
-| Student Routes (Protected by 'auth:student' Middleware)
+| Student Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:student'])->group(function () {
@@ -39,13 +40,13 @@ Route::middleware(['auth:student'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Instructor Routes (Protected by 'auth:instructor' Middleware)
+| Instructor Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:instructor'])->group(function () {
     Route::get('/instructor-dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.dashboard');
-
-    // ✅ Properly namespaced Course Management Routes
+    
+    // Course Management
     Route::resource('instructor/courses', CourseController::class)->names([
         'index' => 'instructor.courses.index',
         'create' => 'instructor.courses.create',
@@ -54,7 +55,8 @@ Route::middleware(['auth:instructor'])->group(function () {
         'update' => 'instructor.courses.update',
         'destroy' => 'instructor.courses.destroy',
     ]);
-    // ✅ Section Management
+
+    // Section Management
     Route::resource('instructor/sections', SectionController::class)->names([
         'index' => 'instructor.sections.index',
         'create' => 'instructor.sections.create',
@@ -63,57 +65,47 @@ Route::middleware(['auth:instructor'])->group(function () {
         'update' => 'instructor.sections.update',
         'destroy' => 'instructor.sections.destroy',
     ]);
-    // ✅ Enrollment Management
-    /*Route::resource('instructor/enrollments', InstructorController::class, [
-        'only' => ['index', 'store', 'update', 'destroy']
-    ])->names([
-        'index' => 'instructor.enrollments',
-        'store' => 'instructor.enrollments.store',
-        'update' => 'instructor.enrollments.update',
-        'destroy' => 'instructor.enrollments.destroy',
-    ]);
-
-    // ✅ Plan Management
-    Route::resource('instructor/plans', InstructorController::class, [
-        'only' => ['index', 'store', 'update', 'destroy']
-    ])->names([
-        'index' => 'instructor.plans',
-        'store' => 'instructor.plans.store',
-        'update' => 'instructor.plans.update',
-        'destroy' => 'instructor.plans.destroy',
-    ]);
-
-    // ✅ Role Management
-    Route::resource('instructor/roles', InstructorController::class, [
-        'only' => ['index', 'store', 'update', 'destroy']
-    ])->names([
-        'index' => 'instructor.roles',
-        'store' => 'instructor.roles.store',
-        'update' => 'instructor.roles.update',
-        'destroy' => 'instructor.roles.destroy',
-    ]);
-
-    // ✅ Student Progress Management
-    Route::resource('instructor/progress', InstructorController::class, [
-        'only' => ['index', 'store', 'update', 'destroy']
-    ])->names([
-        'index' => 'instructor.progress',
-        'store' => 'instructor.progress.store',
-        'update' => 'instructor.progress.update',
-        'destroy' => 'instructor.progress.destroy',
-    ]);
-
-    // ✅ Team Management
-    Route::resource('instructor/teams', InstructorController::class, [
-        'only' => ['index', 'store', 'update', 'destroy']
-    ])->names([
-        'index' => 'instructor.teams',
-        'store' => 'instructor.teams.store',
-        'update' => 'instructor.teams.update',
-        'destroy' => 'instructor.teams.destroy',
-    ]);*/
 });
- 
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (Protected by Admin Middleware)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:instructor', 'admin'])->group(function () { // ✅ Ensure Admin Middleware is applied
+    Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Course Management
+    Route::resource('admin/courses', CourseController::class)->names([
+        'index' => 'admin.courses.index',
+        'create' => 'admin.courses.create',
+        'store' => 'admin.courses.store',
+        'edit' => 'admin.courses.edit',
+        'update' => 'admin.courses.update',
+        'destroy' => 'admin.courses.destroy',
+    ]);
+
+    // Instructor Management
+    Route::resource('admin/instructors', InstructorController::class)->names([
+        'index' => 'admin.instructors.index',
+        'create' => 'admin.instructors.create',
+        'store' => 'admin.instructors.store',
+        'edit' => 'admin.instructors.edit',
+        'update' => 'admin.instructors.update',
+        'destroy' => 'admin.instructors.destroy',
+    ]);
+
+    // Section Management
+    Route::resource('admin/sections', SectionController::class)->names([
+        'index' => 'admin.sections.index',
+        'create' => 'admin.sections.create',
+        'store' => 'admin.sections.store',
+        'edit' => 'admin.sections.edit',
+        'update' => 'admin.sections.update',
+        'destroy' => 'admin.sections.destroy',
+    ]);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Logout Route
