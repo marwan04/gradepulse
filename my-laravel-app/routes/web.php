@@ -11,6 +11,7 @@ use App\Http\Controllers\SectionController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -39,7 +40,7 @@ Route::post('/register', [CustomRegisterController::class, 'register']);
 |--------------------------------------------------------------------------
 | Student Routes
 |--------------------------------------------------------------------------
- */
+*/
 Route::get('/student-dashboard', function () {
     if (!Auth::guard('student')->check()) {
         return redirect('/login')->with('error', 'Access denied.');
@@ -83,133 +84,57 @@ Route::get('/admin-dashboard', function () {
 })->name('admin.dashboard');
 
 Route::group(['prefix' => 'admin'], function () {
-    /*
-    |--------------------------------------------------------------------------
-    | Courses Management
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/courses', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->index();
-    })->name('admin.courses.index');
+    // ✅ إدارة الكورسات
+    Route::resource('courses', CourseController::class)->except(['show'])->names([
+        'index' => 'admin.courses.index',
+        'create' => 'admin.courses.create',
+        'store' => 'admin.courses.store',
+        'edit' => 'admin.courses.edit',
+        'update' => 'admin.courses.update',
+        'destroy' => 'admin.courses.destroy'
+    ]);
 
-    Route::get('/courses/create', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->create();
-    })->name('admin.courses.create');
+    // ✅ إدارة الأقسام
+    Route::resource('sections', SectionController::class)->except(['show'])->names([
+        'index' => 'admin.sections.index',
+        'create' => 'admin.sections.create',
+        'store' => 'admin.sections.store',
+        'edit' => 'admin.sections.edit',
+        'update' => 'admin.sections.update',
+        'destroy' => 'admin.sections.destroy'
+    ]);
 
-    Route::post('/courses', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->store(request());
-    })->name('admin.courses.store');
+    // ✅ إدارة الأدوار
+    Route::resource('roles', RoleController::class)->except(['show'])->names([
+        'index' => 'admin.roles.index',
+        'create' => 'admin.roles.create',
+        'store' => 'admin.roles.store',
+        'edit' => 'admin.roles.edit',
+        'update' => 'admin.roles.update',
+        'destroy' => 'admin.roles.destroy'
+    ]);
 
-    Route::get('/courses/{id}/edit', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->edit($id);
-    })->name('admin.courses.edit');
+    // ✅ إدارة المدرسين
+    Route::resource('instructors', InstructorController::class)->except(['show'])->names([
+        'index' => 'admin.instructors.index',
+        'create' => 'admin.instructors.create',
+        'store' => 'admin.instructors.store',
+        'edit' => 'admin.instructors.edit',
+        'update' => 'admin.instructors.update',
+        'destroy' => 'admin.instructors.destroy'
+    ]);
 
-    Route::put('/courses/{id}', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->update(request(), $id);
-    })->name('admin.courses.update');
-
-    Route::delete('/courses/{id}', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(CourseController::class)->destroy($id);
-    })->name('admin.courses.destroy');
-
-/*
-|--------------------------------------------------------------------------
-| Sections Management
-|--------------------------------------------------------------------------
-*/
-Route::group(['prefix' => 'sections'], function () {
-    Route::get('/', [SectionController::class, 'index'])->name('admin.sections.index');
-
-    Route::get('/create', [SectionController::class, 'create'])->name('admin.sections.create');
-
-    Route::post('/', [SectionController::class, 'store'])->name('admin.sections.store');
-
-    Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('admin.sections.edit');
-
-    Route::put('/{id}', [SectionController::class, 'update'])->name('admin.sections.update');
-
-    Route::delete('/{id}', [SectionController::class, 'destroy'])->name('admin.sections.destroy');
+    // ✅ إدارة الخطط الدراسية (Plans)
+    Route::resource('plans', PlanController::class)->except(['show'])->names([
+        'index' => 'admin.plans.index',
+        'create' => 'admin.plans.create',
+        'store' => 'admin.plans.store',
+        'edit' => 'admin.plans.edit',
+        'update' => 'admin.plans.update',
+        'destroy' => 'admin.plans.destroy'
+    ]);
 });
- /*
-    |--------------------------------------------------------------------------
-    | Roles Management
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/roles', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->index();
-    })->name('admin.roles.index');
 
-    Route::get('/roles/create', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->create();
-    })->name('admin.roles.create');
-
-    Route::post('/roles', function () {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->store(request());
-    })->name('admin.roles.store');
-
-    // ✅ مسار تعديل الدور
-    Route::get('/roles/{id}/edit', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->edit($id);
-    })->name('admin.roles.edit');
-
-    // ✅ مسار تحديث بيانات الدور
-    Route::put('/roles/{id}', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->update(request(), $id);
-    })->name('admin.roles.update');
-
-    // ✅ مسار حذف الدور
-    Route::delete('/roles/{id}', function ($id) {
-        $user = Auth::guard('instructor')->user();
-        if (!$user || $user->RoleID != 1) {
-            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-        }
-        return app(RoleController::class)->destroy($id);
-    })->name('admin.roles.destroy');
-});
 /*
 |--------------------------------------------------------------------------
 | Logout Route

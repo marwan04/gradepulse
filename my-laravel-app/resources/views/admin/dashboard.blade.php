@@ -38,6 +38,16 @@
                                     <a class="nav-link text-primary fw-bold" href="{{ route('admin.roles.index') }}">🎭 Manage Roles</a>
                                 </li>
                             @endif
+                            @if(Route::has('admin.instructors.index'))
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" href="{{ route('admin.instructors.index') }}">📋 Manage Instructors</a>
+                                </li>
+                            @endif
+                            @if(Route::has('admin.plans.index'))
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" href="{{ route('admin.plans.index') }}">📋 Manage Plans</a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </div>
@@ -53,7 +63,7 @@
 
                         <!-- Admin Statistics -->
                         <div class="row text-center">
-                            @foreach ([['📚 Total Courses', 'text-primary', $courses_count ?? 0], ['👑 Total Admins', 'text-info', $admins_count ?? 0]] as [$title, $color, $count])
+                            @foreach ([['📚 Total Courses', 'text-primary', $courses_count ?? 0], ['👑 Total Admins', 'text-info', $admins_count ?? 0], ['📋 Total Plans', 'text-success', $plans_count ?? 0]] as [$title, $color, $count])
                             <div class="col-md-3">
                                 <div class="card shadow-sm border-0 p-3">
                                     <h4 class="{{ $color }}">{{ $title }}</h4>
@@ -67,7 +77,13 @@
                         <div class="mt-4">
                             <h4 class="fw-bold">🔗 Quick Access</h4>
                             <div class="d-flex flex-wrap">
-                                @foreach (['admin.courses.index' => 'Manage Courses', 'admin.sections.index' => 'Manage Sections', 'admin.roles.index' => 'Manage Roles'] as $route => $label)
+                                @foreach ([
+                                    'admin.courses.index' => 'Manage Courses', 
+                                    'admin.sections.index' => 'Manage Sections', 
+                                    'admin.roles.index' => 'Manage Roles',
+                                    'admin.instructors.index' => 'Manage Instructors',
+                                    'admin.plans.index' => 'Manage Plans' // ✅ إضافة زر "Manage Plans"
+                                ] as $route => $label)
                                     @if(Route::has($route))
                                         <a href="{{ route($route) }}" class="btn btn-outline-primary m-2">{{ $label }}</a>
                                     @endif

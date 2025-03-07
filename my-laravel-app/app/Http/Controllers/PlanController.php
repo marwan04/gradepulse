@@ -3,62 +3,80 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Plan; // ✅ تأكد من استيراد مودل Plan
 
 class PlanController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * عرض جميع الخطط الدراسية
      */
     public function index()
     {
-        //
+        $plans = Plan::all();
+        return view('admin.plans.index', compact('plans'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * عرض نموذج إنشاء خطة جديدة
      */
     public function create()
     {
-        //
+        return view('admin.plans.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * تخزين خطة جديدة في قاعدة البيانات
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'PlanName' => 'required|string|max:255',
+            'RequiredCredits' => 'required|integer|min:1',
+        ]);
+
+        Plan::create([
+            'PlanName' => $request->PlanName,
+            'RequiredCredits' => $request->RequiredCredits,
+        ]);
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan created successfully!');
     }
 
     /**
-     * Display the specified resource.
+     * عرض نموذج تعديل خطة دراسية
      */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        $plan = Plan::findOrFail($id);
+        return view('admin.plans.edit', compact('plan'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * تحديث بيانات الخطة الدراسية
      */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'PlanName' => 'required|string|max:255',
+            'RequiredCredits' => 'required|integer|min:1',
+        ]);
+
+        $plan = Plan::findOrFail($id);
+        $plan->update([
+            'PlanName' => $request->PlanName,
+            'RequiredCredits' => $request->RequiredCredits,
+        ]);
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan updated successfully!');
     }
 
     /**
-     * Update the specified resource in storage.
+     * حذف الخطة الدراسية
      */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        Plan::destroy($id);
+        return redirect()->route('admin.plans.index')->with('success', 'Plan deleted successfully!');
     }
 }
+

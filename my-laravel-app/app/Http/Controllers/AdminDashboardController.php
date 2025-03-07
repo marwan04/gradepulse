@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Instructor;
 use App\Models\Student;
+use App\Models\Plan;
 
 class AdminDashboardController extends Controller
 {
@@ -16,7 +17,7 @@ class AdminDashboardController extends Controller
         $instructors_count = Instructor::count();
         $students_count = Student::count();
         $admins_count = Instructor::where('RoleID', 1)->count(); // ✅ Ensure admin count exists
-
+$plans_count=Plan::count();
         // ✅ Retrieve all courses (if needed for listing)
         $courses = Course::all();
 
@@ -26,7 +27,8 @@ class AdminDashboardController extends Controller
             'instructors_count', 
             'students_count', 
             'admins_count', 
-            'courses'
+	    'courses',
+	    'plans_count'
         ));
     }
 }
