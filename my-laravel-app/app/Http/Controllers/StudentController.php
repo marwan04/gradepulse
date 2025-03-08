@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
-use App\Models\Role;
+use App\Models\Plan;
 
 class StudentController extends Controller
 {
@@ -22,89 +22,84 @@ class StudentController extends Controller
      */
     public function create()
     {
-        $roles = Role::all(); // Fetch all roles
-        return view('admin.students.create', compact('roles'));
+	$plans = Plan::all(); // Fetch all plans from the database
+    	return view('admin.students.create', compact('plans'));
     }
-
     /**
      * Store a newly created student.
      */
-    public function store(Request $request)
-    {
-        try {
-            \DB::beginTransaction(); // Start transaction
+public function store(Request $request)
+{
+    $request->validate([
+        'StudentID' => 'required|numeric|unique:Student,StudentID',
+        'Name' => 'required|string|max:255',
+        'Email' => [
+            'required',
+            'email',
+            'regex:/^[a-zA-Z0-9._%+-]+@studentdomain\.com$/',
+            'unique:Student,Email'
+        ],
+        'PlanID' => 'nullable|numeric|exists:Plan,PlanID',
+        'Password' => 'required|string|min:8'
+    ]);
 
-            // Validate input
-            $validatedData = $request->validate([
-                'StudentID' => 'required|numeric|unique:Student,StudentID',
-                'Name' => 'required|string|max:255',
-                'Email' => ['required', 'email', 'unique:Student,Email'],
-                'Phone' => 'nullable|string|max:20',
-                'RoleID' => 'required|numeric',
-                'Password' => 'required|string|min:8'
-            ]);
+    // ✅ Using Eloquent save() to manually assign fields
+    $student = new Student();
+    $student->StudentID = $request->StudentID;
+    $student->Name = $request->Name;
+    $student->Email = $request->Email;
+    $student->PlanID = $request->PlanID; // ✅ Correct field name
+    $student->Password = bcrypt($request->Password); // ✅ Encrypt password
+    $student->save(); // ✅ Save student
 
-            // Insert new student
-            $student = new Student();
-            $student->StudentID = $validatedData['StudentID'];
-            $student->Name = $validatedData['Name'];
-            $student->Email = $validatedData['Email'];
-            $student->Phone = $validatedData['Phone'];
-            $student->RoleID = $validatedData['RoleID'];
-            $student->Password = bcrypt($validatedData['Password']); // Hash password
-            $student->save();
-
-            \DB::commit(); // Commit transaction
-            return redirect()->route('admin.students.index')->with('success', 'Student added successfully.');
-
-        } catch (\Exception $e) {
-            \DB::rollBack(); // Rollback on error
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
-        }
-    }
+    return redirect()->route('admin.students.index')->with('success', 'Student added successfully.');
+}
 
     /**
      * Show the form for editing a student.
      */
     public function edit($id)
     {
-        $student = Student::findOrFail($id); // Fetch student data
-        $roles = Role::all(); // Fetch all roles
-        return view('admin.students.edit', compact('student', 'roles'));
+	$student = Student::findOrFail($id); // Fetch student by ID
+	$plans = Plan::all(); // Fetch all available plans
+
+	return view('admin.students.edit', compact('student', 'plans'));
     }
 
     /**
      * Update the student record.
      */
-    public function update(Request $request, $id)
-    {
-        try {
-            \DB::beginTransaction(); // Start transaction
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'Name' => 'required|string|max:255', // ✅ Ensure Name is required
+        'Email' => [
+            'required',
+            'email',
+            'regex:/^[a-zA-Z0-9._%+-]+@studentdomain\.com$/',
+            'unique:Student,Email,' . $id . ',StudentID' // ✅ Ignore the current student's email
+        ],
+        'PlanID' => 'nullable|numeric|exists:Plan,PlanID',
+        'Password' => 'nullable|string|min:8' // ✅ Password is optional
+    ]);
 
-            // Validate input
-            $validatedData = $request->validate([
-                'Name' => 'required|string|max:255',
-                'Email' => ['required', 'email', 'unique:Student,Email,' . $id . ',StudentID'],
-                'Phone' => 'nullable|string|max:20',
-                'RoleID' => 'required|numeric'
-            ]);
+    // ✅ Find student by ID
+    $student = Student::findOrFail($id);
+    
+    // ✅ Update fields
+    $student->Name = $request->Name;
+    $student->Email = $request->Email;
+    $student->PlanID = $request->PlanID;
 
-            // Update student data
-            $student = Student::findOrFail($id);
-            $student->Name = $validatedData['Name'];
-            $student->Email = $validatedData['Email'];
-            $student->Phone = $validatedData['Phone'];
-            $student->RoleID = $validatedData['RoleID'];
-            $student->save();
-
-            \DB::commit(); // Commit transaction
-            return redirect()->route('admin.students.index')->with('success', 'Student updated successfully.');
-
-        } catch (\Exception $e) {
-            \DB::rollBack(); // Rollback on error
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
-        }
+    // ✅ Update password only if provided
+    if (!empty($request->Password)) {
+        $student->Password = bcrypt($request->Password);
     }
+
+    $student->save(); // ✅ Save updated student
+
+    return redirect()->route('admin.students.index')->with('success', 'Student updated successfully.');
+}
 
     /**
      * Remove the student record.

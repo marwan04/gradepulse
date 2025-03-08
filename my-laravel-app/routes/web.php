@@ -12,6 +12,7 @@ use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -23,7 +24,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// ✅ مسارات تسجيل الدخول والتسجيل
+// ✅ Login & Register Routes
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -61,7 +62,7 @@ Route::get('/instructor-dashboard', function () {
     return app(InstructorDashboardController::class)->index();
 })->name('instructor.dashboard');
 
-// ✅ رفع ملف إكسل
+// ✅ Upload Excel File (Instructor Only)
 Route::post('/instructor/upload-excel', function () {
     $user = Auth::guard('instructor')->user();
     if (!$user) {
@@ -84,54 +85,74 @@ Route::get('/admin-dashboard', function () {
 })->name('admin.dashboard');
 
 Route::group(['prefix' => 'admin'], function () {
-    // ✅ إدارة الكورسات
+    // ✅ Manage Courses
     Route::resource('courses', CourseController::class)->except(['show'])->names([
-        'index' => 'admin.courses.index',
-        'create' => 'admin.courses.create',
-        'store' => 'admin.courses.store',
-        'edit' => 'admin.courses.edit',
-        'update' => 'admin.courses.update',
+        'index'   => 'admin.courses.index',
+        'create'  => 'admin.courses.create',
+        'store'   => 'admin.courses.store',
+        'edit'    => 'admin.courses.edit',
+        'update'  => 'admin.courses.update',
         'destroy' => 'admin.courses.destroy'
     ]);
 
-    // ✅ إدارة الأقسام
+    // ✅ Manage Sections
     Route::resource('sections', SectionController::class)->except(['show'])->names([
-        'index' => 'admin.sections.index',
-        'create' => 'admin.sections.create',
-        'store' => 'admin.sections.store',
-        'edit' => 'admin.sections.edit',
-        'update' => 'admin.sections.update',
+        'index'   => 'admin.sections.index',
+        'create'  => 'admin.sections.create',
+        'store'   => 'admin.sections.store',
+        'edit'    => 'admin.sections.edit',
+        'update'  => 'admin.sections.update',
         'destroy' => 'admin.sections.destroy'
     ]);
 
-    // ✅ إدارة الأدوار
+    // ✅ Manage Roles
     Route::resource('roles', RoleController::class)->except(['show'])->names([
-        'index' => 'admin.roles.index',
-        'create' => 'admin.roles.create',
-        'store' => 'admin.roles.store',
-        'edit' => 'admin.roles.edit',
-        'update' => 'admin.roles.update',
+        'index'   => 'admin.roles.index',
+        'create'  => 'admin.roles.create',
+        'store'   => 'admin.roles.store',
+        'edit'    => 'admin.roles.edit',
+        'update'  => 'admin.roles.update',
         'destroy' => 'admin.roles.destroy'
     ]);
 
-    // ✅ إدارة المدرسين
+    // ✅ Manage Instructors
     Route::resource('instructors', InstructorController::class)->except(['show'])->names([
-        'index' => 'admin.instructors.index',
-        'create' => 'admin.instructors.create',
-        'store' => 'admin.instructors.store',
-        'edit' => 'admin.instructors.edit',
-        'update' => 'admin.instructors.update',
+        'index'   => 'admin.instructors.index',
+        'create'  => 'admin.instructors.create',
+        'store'   => 'admin.instructors.store',
+        'edit'    => 'admin.instructors.edit',
+        'update'  => 'admin.instructors.update',
         'destroy' => 'admin.instructors.destroy'
     ]);
 
-    // ✅ إدارة الخطط الدراسية (Plans)
+    // ✅ Manage Students
+    Route::resource('students', StudentController::class)->except(['show'])->names([
+        'index'   => 'admin.students.index',
+        'create'  => 'admin.students.create',
+        'store'   => 'admin.students.store',
+        'edit'    => 'admin.students.edit',
+        'update'  => 'admin.students.update',
+        'destroy' => 'admin.students.destroy'
+    ]);
+
+    // ✅ Manage Plans
     Route::resource('plans', PlanController::class)->except(['show'])->names([
-        'index' => 'admin.plans.index',
-        'create' => 'admin.plans.create',
-        'store' => 'admin.plans.store',
-        'edit' => 'admin.plans.edit',
-        'update' => 'admin.plans.update',
+        'index'   => 'admin.plans.index',
+        'create'  => 'admin.plans.create',
+        'store'   => 'admin.plans.store',
+        'edit'    => 'admin.plans.edit',
+        'update'  => 'admin.plans.update',
         'destroy' => 'admin.plans.destroy'
+    ]);
+
+    // ✅ Manage Enrollments (NEW)
+    Route::resource('enrollments', EnrollmentController::class)->except(['show'])->names([
+        'index'   => 'admin.enrollments.index',
+        'create'  => 'admin.enrollments.create',
+        'store'   => 'admin.enrollments.store',
+        'edit'    => 'admin.enrollments.edit',
+        'update'  => 'admin.enrollments.update',
+        'destroy' => 'admin.enrollments.destroy'
     ]);
 });
 

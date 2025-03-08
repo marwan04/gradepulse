@@ -20,16 +20,30 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Course ID</th> <!-- ✅ Added Course ID Column -->
                 <th>Course Name</th>
                 <th>Credits</th>
+                <th>Assigned Plans</th> <!-- ✅ New Column for Assigned Plans -->
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach($courses as $course)
                 <tr>
+                    <td>{{ $course->CourseID }}</td> <!-- ✅ Display Course ID -->
                     <td>{{ $course->CourseName }}</td>
                     <td>{{ $course->Credits }}</td>
+                    <td>
+                        @if($course->plans->isNotEmpty())
+                            <ul>
+                                @foreach($course->plans as $plan)
+                                    <li>{{ $plan->PlanID }} - {{ $plan->PlanName ?? 'N/A' }}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <span class="text-muted">No plans assigned</span>
+                        @endif
+                    </td>
                     <td>
                         <!-- ✅ Corrected Edit Link -->
                         <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-warning btn-sm">✏️ Edit</a>

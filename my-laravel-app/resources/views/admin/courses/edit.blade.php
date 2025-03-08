@@ -9,10 +9,15 @@
     <!-- 🔙 Back to Course Management -->
     <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary mb-3">⬅️ Back to Courses</a>
 
-    <!-- ✅ FIXED: Correct Route & Form Action -->
-    <form action="{{ route('admin.courses.update', $course) }}" method="POST">
+    <form action="{{ route('admin.courses.update', $course->CourseID) }}" method="POST">
         @csrf
         @method('PUT')
+
+        <!-- Course ID (Non-editable) -->
+        <div class="mb-3">
+            <label class="form-label">Course ID</label>
+            <input type="number" name="CourseID" class="form-control" value="{{ $course->CourseID }}" readonly>
+        </div>
 
         <!-- Course Name -->
         <div class="mb-3">
@@ -24,6 +29,20 @@
         <div class="mb-3">
             <label class="form-label">Credits</label>
             <input type="number" name="Credits" class="form-control" value="{{ old('Credits', $course->Credits) }}" required>
+        </div>
+
+        <!-- Assign Course to Plans -->
+        <div class="mb-3">
+            <label class="form-label">Assign to Plans</label>
+            <select name="plans[]" class="form-control" multiple required>
+                @foreach($plans as $plan)
+                    <option value="{{ $plan->PlanID }}" 
+                        {{ in_array($plan->PlanID, $selectedPlans) ? 'selected' : '' }}>
+                        {{ $plan->PlanID }}
+                    </option>
+                @endforeach
+            </select>
+            <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple plans.</small>
         </div>
 
         <button type="submit" class="btn btn-success">✅ Update Course</button>

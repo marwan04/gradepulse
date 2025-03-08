@@ -5,7 +5,7 @@
 @section('content')
     <section class="container mt-5">
         <div class="row">
-            <!-- التحقق من تسجيل الدخول -->
+            <!-- Check if the user is logged in -->
             @php
                 $user = Auth::guard('instructor')->user();
             @endphp
@@ -43,9 +43,19 @@
                                     <a class="nav-link text-primary fw-bold" href="{{ route('admin.instructors.index') }}">📋 Manage Instructors</a>
                                 </li>
                             @endif
+                            @if(Route::has('admin.students.index'))
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" href="{{ route('admin.students.index') }}">🎓 Manage Students</a>
+                                </li>
+                            @endif
                             @if(Route::has('admin.plans.index'))
                                 <li class="nav-item">
                                     <a class="nav-link text-primary fw-bold" href="{{ route('admin.plans.index') }}">📋 Manage Plans</a>
+                                </li>
+                            @endif
+                            @if(Route::has('admin.enrollments.index'))
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" href="{{ route('admin.enrollments.index') }}">📝 Manage Enrollments</a>
                                 </li>
                             @endif
                         </ul>
@@ -63,7 +73,11 @@
 
                         <!-- Admin Statistics -->
                         <div class="row text-center">
-                            @foreach ([['📚 Total Courses', 'text-primary', $courses_count ?? 0], ['👑 Total Admins', 'text-info', $admins_count ?? 0], ['📋 Total Plans', 'text-success', $plans_count ?? 0]] as [$title, $color, $count])
+                            @foreach ([['📚 Total Courses', 'text-primary', $courses_count ?? 0], 
+                                      ['👨‍🏫 Total Instructors', 'text-info', $instructors_count ?? 0], 
+                                      ['🎓 Total Students', 'text-success', $students_count ?? 0],
+                                      ['📝 Total Enrollments', 'text-warning', $enrollments_count ?? 0]] 
+                                      as [$title, $color, $count])
                             <div class="col-md-3">
                                 <div class="card shadow-sm border-0 p-3">
                                     <h4 class="{{ $color }}">{{ $title }}</h4>
@@ -82,7 +96,9 @@
                                     'admin.sections.index' => 'Manage Sections', 
                                     'admin.roles.index' => 'Manage Roles',
                                     'admin.instructors.index' => 'Manage Instructors',
-                                    'admin.plans.index' => 'Manage Plans' // ✅ إضافة زر "Manage Plans"
+                                    'admin.students.index' => 'Manage Students',
+                                    'admin.plans.index' => 'Manage Plans',
+                                    'admin.enrollments.index' => 'Manage Enrollments'
                                 ] as $route => $label)
                                     @if(Route::has($route))
                                         <a href="{{ route($route) }}" class="btn btn-outline-primary m-2">{{ $label }}</a>
@@ -116,5 +132,5 @@
             </div>
         </div>
     </section>
-@endsection  
+@endsection
 
