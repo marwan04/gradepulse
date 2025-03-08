@@ -8,6 +8,7 @@ use App\Http\Controllers\InstructorDashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\SectionController;
+use App\Http\Controllers\InstructorSectionController; // ✅ Instructor-specific Section Controller
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EnrollmentController;
@@ -42,118 +43,116 @@ Route::post('/register', [CustomRegisterController::class, 'register']);
 | Student Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/student-dashboard', function () {
-    if (!Auth::guard('student')->check()) {
-        return redirect('/login')->with('error', 'Access denied.');
-    }
-    return app(StudentDashboardController::class)->index();
-})->name('student.dashboard');
+Route::middleware('auth:student')->group(function () {
+    Route::get('/student-dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
+});
 
 /*
 |--------------------------------------------------------------------------
-| Instructor Routes (Manual Authentication)
+| Instructor Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/instructor-dashboard', function () {
-    $user = Auth::guard('instructor')->user();
-    if (!$user) {
-        return redirect('/login')->with('error', 'Access denied.');
-    }
-    return app(InstructorDashboardController::class)->index();
-})->name('instructor.dashboard');
+Route::middleware('auth:instructor')->group(function () {
+    Route::get('/instructor-dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.dashboard');
 
-// ✅ Upload Excel File (Instructor Only)
-Route::post('/instructor/upload-excel', function () {
-    $user = Auth::guard('instructor')->user();
-    if (!$user) {
-        return redirect('/login')->with('error', 'Access denied.');
-    }
-    return app(InstructorController::class)->uploadExcel(request());
-})->name('instructor.uploadExcel');
+    // ✅ Instructor Upload Excel Route
+    Route::post('/instructor/upload-excel', [InstructorController::class, 'uploadExcel'])->name('instructor.uploadExcel');
+
+    // ✅ Instructor Section Management (Instructor can create & modify their own sections)
+    Route::resource('instructor/sections', InstructorSectionController::class)->except(['show', 'destroy'])->names([
+        'index'   => 'instructor.sections.index',
+        'create'  => 'instructor.sections.create',
+        'store'   => 'instructor.sections.store',
+        'edit'    => 'instructor.sections.edit',
+        'update'  => 'instructor.sections.update'
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes (Manual Role Verification)
+| Admin Routes (Requires Role Verification)
 |--------------------------------------------------------------------------
 */
-Route::get('/admin-dashboard', function () {
-    $user = Auth::guard('instructor')->user();
-    if (!$user || $user->RoleID != 1) {
-        return redirect('/instructor-dashboard')->with('error', 'Access denied.');
-    }
-    return app(AdminDashboardController::class)->index();
-})->name('admin.dashboard');
+Route::middleware(['auth:instructor'])->group(function () {
+    Route::get('/admin-dashboard', function () {
+        $user = Auth::guard('instructor')->user();
+        if (!$user || $user->RoleID != 1) {
+            return redirect('/instructor-dashboard')->with('error', 'Access denied.');
+        }
+        return app(AdminDashboardController::class)->index();
+    })->name('admin.dashboard');
 
-Route::group(['prefix' => 'admin'], function () {
-    // ✅ Manage Courses
-    Route::resource('courses', CourseController::class)->except(['show'])->names([
-        'index'   => 'admin.courses.index',
-        'create'  => 'admin.courses.create',
-        'store'   => 'admin.courses.store',
-        'edit'    => 'admin.courses.edit',
-        'update'  => 'admin.courses.update',
-        'destroy' => 'admin.courses.destroy'
-    ]);
+    Route::prefix('admin')->group(function () {
+        // ✅ Manage Courses
+        Route::resource('courses', CourseController::class)->except(['show'])->names([
+            'index'   => 'admin.courses.index',
+            'create'  => 'admin.courses.create',
+            'store'   => 'admin.courses.store',
+            'edit'    => 'admin.courses.edit',
+            'update'  => 'admin.courses.update',
+            'destroy' => 'admin.courses.destroy'
+        ]);
 
-    // ✅ Manage Sections
-    Route::resource('sections', SectionController::class)->except(['show'])->names([
-        'index'   => 'admin.sections.index',
-        'create'  => 'admin.sections.create',
-        'store'   => 'admin.sections.store',
-        'edit'    => 'admin.sections.edit',
-        'update'  => 'admin.sections.update',
-        'destroy' => 'admin.sections.destroy'
-    ]);
+        // ✅ Manage Sections (For Admin)
+        Route::resource('sections', SectionController::class)->except(['show'])->names([
+            'index'   => 'admin.sections.index',
+            'create'  => 'admin.sections.create',
+            'store'   => 'admin.sections.store',
+            'edit'    => 'admin.sections.edit',
+            'update'  => 'admin.sections.update',
+            'destroy' => 'admin.sections.destroy'
+        ]);
 
-    // ✅ Manage Roles
-    Route::resource('roles', RoleController::class)->except(['show'])->names([
-        'index'   => 'admin.roles.index',
-        'create'  => 'admin.roles.create',
-        'store'   => 'admin.roles.store',
-        'edit'    => 'admin.roles.edit',
-        'update'  => 'admin.roles.update',
-        'destroy' => 'admin.roles.destroy'
-    ]);
+        // ✅ Manage Roles
+        Route::resource('roles', RoleController::class)->except(['show'])->names([
+            'index'   => 'admin.roles.index',
+            'create'  => 'admin.roles.create',
+            'store'   => 'admin.roles.store',
+            'edit'    => 'admin.roles.edit',
+            'update'  => 'admin.roles.update',
+            'destroy' => 'admin.roles.destroy'
+        ]);
 
-    // ✅ Manage Instructors
-    Route::resource('instructors', InstructorController::class)->except(['show'])->names([
-        'index'   => 'admin.instructors.index',
-        'create'  => 'admin.instructors.create',
-        'store'   => 'admin.instructors.store',
-        'edit'    => 'admin.instructors.edit',
-        'update'  => 'admin.instructors.update',
-        'destroy' => 'admin.instructors.destroy'
-    ]);
+        // ✅ Manage Instructors
+        Route::resource('instructors', InstructorController::class)->except(['show'])->names([
+            'index'   => 'admin.instructors.index',
+            'create'  => 'admin.instructors.create',
+            'store'   => 'admin.instructors.store',
+            'edit'    => 'admin.instructors.edit',
+            'update'  => 'admin.instructors.update',
+            'destroy' => 'admin.instructors.destroy'
+        ]);
 
-    // ✅ Manage Students
-    Route::resource('students', StudentController::class)->except(['show'])->names([
-        'index'   => 'admin.students.index',
-        'create'  => 'admin.students.create',
-        'store'   => 'admin.students.store',
-        'edit'    => 'admin.students.edit',
-        'update'  => 'admin.students.update',
-        'destroy' => 'admin.students.destroy'
-    ]);
+        // ✅ Manage Students
+        Route::resource('students', StudentController::class)->except(['show'])->names([
+            'index'   => 'admin.students.index',
+            'create'  => 'admin.students.create',
+            'store'   => 'admin.students.store',
+            'edit'    => 'admin.students.edit',
+            'update'  => 'admin.students.update',
+            'destroy' => 'admin.students.destroy'
+        ]);
 
-    // ✅ Manage Plans
-    Route::resource('plans', PlanController::class)->except(['show'])->names([
-        'index'   => 'admin.plans.index',
-        'create'  => 'admin.plans.create',
-        'store'   => 'admin.plans.store',
-        'edit'    => 'admin.plans.edit',
-        'update'  => 'admin.plans.update',
-        'destroy' => 'admin.plans.destroy'
-    ]);
+        // ✅ Manage Plans
+        Route::resource('plans', PlanController::class)->except(['show'])->names([
+            'index'   => 'admin.plans.index',
+            'create'  => 'admin.plans.create',
+            'store'   => 'admin.plans.store',
+            'edit'    => 'admin.plans.edit',
+            'update'  => 'admin.plans.update',
+            'destroy' => 'admin.plans.destroy'
+        ]);
 
-    // ✅ Manage Enrollments (NEW)
-    Route::resource('enrollments', EnrollmentController::class)->except(['show'])->names([
-        'index'   => 'admin.enrollments.index',
-        'create'  => 'admin.enrollments.create',
-        'store'   => 'admin.enrollments.store',
-        'edit'    => 'admin.enrollments.edit',
-        'update'  => 'admin.enrollments.update',
-        'destroy' => 'admin.enrollments.destroy'
-    ]);
+        // ✅ Manage Enrollments
+        Route::resource('enrollments', EnrollmentController::class)->except(['show'])->names([
+            'index'   => 'admin.enrollments.index',
+            'create'  => 'admin.enrollments.create',
+            'store'   => 'admin.enrollments.store',
+            'edit'    => 'admin.enrollments.edit',
+            'update'  => 'admin.enrollments.update',
+            'destroy' => 'admin.enrollments.destroy'
+        ]);
+    });
 });
 
 /*
@@ -165,4 +164,3 @@ Route::post('/logout', function () {
     Auth::logout();
     return redirect('/login');
 })->name('logout');
-
