@@ -8,7 +8,8 @@ use App\Http\Controllers\InstructorDashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\SectionController;
-use App\Http\Controllers\InstructorSectionController; // ✅ Instructor-specific Section Controller
+use App\Http\Controllers\InstructorSectionController;
+use App\Http\Controllers\InstructorEnrollmentController; // ✅ Instructor Enrollment Management Controller
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EnrollmentController;
@@ -40,7 +41,7 @@ Route::post('/register', [CustomRegisterController::class, 'register']);
 
 /*
 |--------------------------------------------------------------------------
-| Student Routes
+| Student Routes (Protected)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:student')->group(function () {
@@ -49,7 +50,7 @@ Route::middleware('auth:student')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Instructor Routes
+| Instructor Routes (Protected)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:instructor')->group(function () {
@@ -58,7 +59,7 @@ Route::middleware('auth:instructor')->group(function () {
     // ✅ Instructor Upload Excel Route
     Route::post('/instructor/upload-excel', [InstructorController::class, 'uploadExcel'])->name('instructor.uploadExcel');
 
-    // ✅ Instructor Section Management (Instructor can create & modify their own sections)
+    // ✅ Instructor Section Management
     Route::resource('instructor/sections', InstructorSectionController::class)->except(['show', 'destroy'])->names([
         'index'   => 'instructor.sections.index',
         'create'  => 'instructor.sections.create',
@@ -66,11 +67,17 @@ Route::middleware('auth:instructor')->group(function () {
         'edit'    => 'instructor.sections.edit',
         'update'  => 'instructor.sections.update'
     ]);
+
+    // ✅ Instructor Enrollment Management (Editing Student Marks)
+    Route::get('/instructor/enrollments', [InstructorEnrollmentController::class, 'index'])->name('instructor.enrollments.index');
+    Route::get('/instructor/enrollments/{sectionID}', [InstructorEnrollmentController::class, 'show'])->name('instructor.enrollments.show');
+    Route::get('/instructor/enrollments/{id}/edit', [InstructorEnrollmentController::class, 'edit'])->name('instructor.enrollments.edit');
+    Route::post('/instructor/enrollments/{id}/update', [InstructorEnrollmentController::class, 'update'])->name('instructor.enrollments.update');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes (Requires Role Verification)
+| Admin Routes (Protected with Role Check)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:instructor'])->group(function () {
@@ -82,7 +89,7 @@ Route::middleware(['auth:instructor'])->group(function () {
         return app(AdminDashboardController::class)->index();
     })->name('admin.dashboard');
 
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware(['auth:instructor'])->group(function () {
         // ✅ Manage Courses
         Route::resource('courses', CourseController::class)->except(['show'])->names([
             'index'   => 'admin.courses.index',
@@ -93,7 +100,7 @@ Route::middleware(['auth:instructor'])->group(function () {
             'destroy' => 'admin.courses.destroy'
         ]);
 
-        // ✅ Manage Sections (For Admin)
+        // ✅ Manage Sections
         Route::resource('sections', SectionController::class)->except(['show'])->names([
             'index'   => 'admin.sections.index',
             'create'  => 'admin.sections.create',
@@ -143,7 +150,7 @@ Route::middleware(['auth:instructor'])->group(function () {
             'destroy' => 'admin.plans.destroy'
         ]);
 
-        // ✅ Manage Enrollments
+        // ✅ Manage Enrollments (Admin ONLY)
         Route::resource('enrollments', EnrollmentController::class)->except(['show'])->names([
             'index'   => 'admin.enrollments.index',
             'create'  => 'admin.enrollments.create',
@@ -164,3 +171,4 @@ Route::post('/logout', function () {
     Auth::logout();
     return redirect('/login');
 })->name('logout');
+

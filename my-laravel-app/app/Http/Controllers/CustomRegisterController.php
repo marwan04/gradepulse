@@ -21,7 +21,18 @@ class CustomRegisterController extends Controller
                 'unique:Student,email',
                 'unique:Instructor,email',
             ],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',              // ✅ Minimum 8 characters
+                'regex:/[A-Z]/',      // ✅ At least one uppercase letter
+                'regex:/[a-z]/',      // ✅ At least one lowercase letter
+                'regex:/[0-9]/',      // ✅ At least one number
+                'regex:/[@$!%*?&]/',  // ✅ At least one special character
+                'confirmed',          // ✅ Ensure password confirmation matches
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).'
         ]);
 
         $email = $request->email;

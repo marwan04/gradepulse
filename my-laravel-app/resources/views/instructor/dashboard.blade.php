@@ -20,7 +20,7 @@
             <div class="d-flex flex-wrap">
                 <!-- ✅ Manage Sections -->
                 <a href="{{ route('instructor.sections.index') }}" class="btn btn-outline-primary m-2">📑 Manage My Sections</a>
-                
+
                 <!-- ✅ Upload Excel -->
                 <form action="{{ route('instructor.uploadExcel') }}" method="POST" enctype="multipart/form-data" class="border p-3 rounded">
                     @csrf
@@ -28,6 +28,9 @@
                     <input type="file" name="file" id="file" class="form-control mb-2" required>
                     <button type="submit" class="btn btn-primary">📤 Upload File</button>
                 </form>
+
+                <!-- ✅ Edit Student Marks -->
+                <a href="{{ route('instructor.enrollments.index') }}" class="btn btn-success m-2">✏️ Edit Student Marks</a>
             </div>
         </div>
     </div>
