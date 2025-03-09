@@ -3,59 +3,77 @@
 @section('title', 'Manage Instructors')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="fw-bold">👨‍🏫 Manage Instructors</h2>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+<style>
+    /* Hide navbar */
+    nav.navbar {
+        display: none !important;
+    }
+</style>
 
-    <a href="{{ route('admin.instructors.create') }}" class="btn btn-primary mb-3">➕ Add New Instructor</a>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">👨‍🏫 Manage Instructors</h2>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Instructor ID</th>
-                <th>Instructor Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role ID</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($instructors as $instructor)
+        <!-- 🔙 Back Button -->
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+    </div>
+
+    <hr>
+
+    <!-- 🔵 Add Instructor Button -->
+    <div class="mb-3 text-end">
+        <a href="{{ route('admin.instructors.create') }}" class="btn btn-primary">➕ Add New Instructor</a>
+    </div>
+
+    <!-- 📋 Instructor Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle shadow-sm">
+            <thead class="table-dark text-center">
                 <tr>
-                    <td>{{ $instructor->InstructorID ?? 'No ID' }}</td>
-                    <td>{{ $instructor->Name ?? 'No Name' }}</td>
-                    <td>{{ $instructor->Email ?? 'No Email' }}</td>
-                    <td>{{ $instructor->Phone ?? 'No Phone' }}</td>
-                    <td>{{ $instructor->RoleID ?? 'No Role ID' }}</td>
-                    <td>
-                        @if(isset($instructor->InstructorID) && !empty($instructor->InstructorID))
-                            <!-- رابط التعديل بعد التعديل -->
-                            <a href="{{ route('admin.instructors.edit', ['instructor' => $instructor->InstructorID]) }}" class="btn btn-warning btn-sm">
-                                ✏️ Edit
-                            </a>
+                    <th>Instructor ID</th>
+                    <th>Instructor Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @forelse($instructors as $instructor)
+                    <tr>
+                        <td><strong>{{ $instructor->InstructorID ?? 'No ID' }}</strong></td>
+                        <td>{{ $instructor->Name ?? 'No Name' }}</td>
+                        <td>{{ $instructor->Email ?? 'No Email' }}</td>
+                        <td>{{ $instructor->Phone ?? 'No Phone' }}</td>
+                        <td>{{ $instructor->RoleID ?? 'No Role ID' }}</td>
+                        <td>
+                            @if(isset($instructor->InstructorID) && !empty($instructor->InstructorID))
+                                <!-- ✏️ Edit Button -->
+                                <a href="{{ route('admin.instructors.edit', ['instructor' => $instructor->InstructorID]) }}" class="btn btn-warning btn-sm">
+                                    ✏️ Edit
+                                </a>
 
-                            <!-- زر الحذف بعد التعديل -->
-                            <form action="{{ route('admin.instructors.destroy', ['instructor' => $instructor->InstructorID]) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
-                            </form>
-                        @else
-                            <span class="text-muted">No ID Available</span>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center text-muted">No instructors found.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                                <!-- 🗑 Delete Button -->
+                                <form action="{{ route('admin.instructors.destroy', ['instructor' => $instructor->InstructorID]) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
+                                </form>
+                            @else
+                                <span class="text-muted">No ID Available</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No instructors found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
+
 @endsection
 

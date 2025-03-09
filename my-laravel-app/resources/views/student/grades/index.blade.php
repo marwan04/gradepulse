@@ -8,15 +8,15 @@
         <div class="card-body">
             <h2 class="fw-bold text-primary text-center">📊 Cumulative Academic Record</h2>
 
-            <!-- Student Progress Summary -->
+            <!-- 🔙 Back Button -->
+            <div class="mb-3">
+                <a href="{{ route('student.dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+            </div>
+
+            <!-- Student Progress Summary (Removed Graduation Status) -->
             @if($studentProgress)
                 <div class="alert alert-info text-center">
                     <h5><strong>Total Credits Earned:</strong> {{ $studentProgress->TotalCreditsEarned ?? 'N/A' }}</h5>
-                    <h5><strong>Graduation Status:</strong> 
-                        <span class="badge {{ $studentProgress->GraduationStatus ? 'bg-success' : 'bg-warning' }}">
-                            {{ $studentProgress->GraduationStatus ? 'Completed' : 'In Progress' }}
-                        </span>
-                    </h5>
                 </div>
             @else
                 <div class="alert alert-warning text-center">
@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            <!-- Filter by Semester -->
+            <!-- 📅 Filter by Semester -->
             <h4 class="fw-bold mt-4">📅 Filter by Semester:</h4>
             <div class="d-flex flex-wrap">
                 <a href="{{ route('student.grades.index') }}" class="btn btn-outline-primary m-2">📊 View All Grades</a>
@@ -35,7 +35,7 @@
                 @endforeach
             </div>
 
-            <!-- Grades Table -->
+            <!-- 📜 Grades Table -->
             <div class="mt-4">
                 <h4 class="fw-bold">📜 Grade Report</h4>
                 <div class="table-responsive">

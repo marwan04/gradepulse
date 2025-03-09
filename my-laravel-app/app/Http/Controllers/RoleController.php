@@ -8,7 +8,8 @@ use App\Models\Role;
 class RoleController extends Controller
 {
     /**
-     * عرض قائمة الأدوار.
+     * ✅ Display all roles.
+     * - Retrieves all roles from the database and passes them to the view.
      */
     public function index()
     {
@@ -17,7 +18,7 @@ class RoleController extends Controller
     }
 
     /**
-     * عرض نموذج إنشاء دور جديد.
+     * ✅ Show the form for creating a new role.
      */
     public function create()
     {
@@ -25,26 +26,25 @@ class RoleController extends Controller
     }
 
     /**
-     * تخزين دور جديد في قاعدة البيانات.
+     * ✅ Store a new role in the database.
+     * - Validates input and ensures role name uniqueness.
      */
-public function store(Request $request)
-{
-    // ✅ تعديل اسم الجدول في التحقق من صحة البيانات
-    $request->validate([
-        'RoleName' => 'required|string|max:255|unique:Role,RoleName',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'RoleName' => 'required|string|max:255|unique:Role,RoleName', // Ensure unique role name
+        ]);
 
-    // ✅ حفظ الدور الجديد
-    Role::create([
-        'RoleName' => $request->RoleName,
-    ]);
+        Role::create([
+            'RoleName' => $request->RoleName,
+        ]);
 
-    return redirect()->route('admin.roles.index')->with('success', 'Role created successfully!');
-}
-
+        return redirect()->route('admin.roles.index')->with('success', 'Role created successfully!');
+    }
 
     /**
-     * عرض نموذج تعديل دور موجود.
+     * ✅ Show the form for editing an existing role.
+     * - Ensures the requested role exists before displaying the form.
      */
     public function edit($id)
     {
@@ -53,7 +53,8 @@ public function store(Request $request)
     }
 
     /**
-     * تحديث بيانات دور معين.
+     * ✅ Update an existing role in the database.
+     * - Validates input before updating the role details.
      */
     public function update(Request $request, $id)
     {
@@ -70,7 +71,8 @@ public function store(Request $request)
     }
 
     /**
-     * حذف دور معين.
+     * ✅ Delete a role from the database.
+     * - Ensures the role is deleted and redirects with a success message.
      */
     public function destroy($id)
     {

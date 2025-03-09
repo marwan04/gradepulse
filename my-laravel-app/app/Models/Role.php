@@ -9,20 +9,34 @@ class Role extends Model
 {
     use HasFactory;
 
-    // ✅ التأكد من أن اسم الجدول متطابق تمامًا مع اسم الجدول في MySQL
-    protected $table = 'Role';  // مهم أن يكون الحرف الأول كبيرًا كما هو في MySQL
+    /**
+     * ✅ Define the database table name
+     * Ensures Laravel correctly maps the model to the `Role` table.
+     */
+    protected $table = 'Role';  // Ensure the table name matches the MySQL table exactly
 
-    // ✅ تحديد المفتاح الأساسي الصحيح
+    /**
+     * ✅ Set the primary key field
+     * Since the primary key is not the default 'id', we explicitly define it.
+     */
     protected $primaryKey = 'RoleID';
 
-    // ✅ السماح بتعديل الحقول الضرورية
-    protected $fillable = ['RoleName'];
+    /**
+     * ✅ Mass Assignable Attributes
+     * Specifies which attributes can be mass assigned using `Role::create([...])`
+     */
+    protected $fillable = ['RoleName']; // The name of the role (e.g., "Admin", "Instructor")
 
-    // ❌ تعطيل التوقيتات لأنها غير موجودة في الجدول
+    /**
+     * ✅ Disable timestamps
+     * If the `Role` table does not have `created_at` and `updated_at`, we disable timestamps.
+     */
     public $timestamps = false;
 
     /**
-     * علاقة بين الدور والمدربين (إذا كان هناك علاقة)
+     * ✅ Relationship: Role → Instructors (One-to-Many)
+     * A role can be assigned to multiple instructors.
+     * - `RoleID` is the foreign key in the `Instructor` table.
      */
     public function instructors()
     {

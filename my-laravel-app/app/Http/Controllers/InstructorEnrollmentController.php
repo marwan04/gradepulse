@@ -13,16 +13,16 @@ use App\Models\Course;
 class InstructorEnrollmentController extends Controller
 {
     /**
-     * Display all students enrolled in the instructor's sections.
+     * ✅ Display all students enrolled in the instructor's sections.
      */
     public function index()
     {
         $instructorId = Auth::guard('instructor')->user()->InstructorID;
 
-        // Fetch sections the instructor teaches
+        // ✅ Fetch sections the instructor teaches
         $sections = Section::where('InstructorID', $instructorId)->pluck('SectionID');
 
-        // Fetch enrolled students with course names
+        // ✅ Fetch enrolled students with course names
         $enrollments = Enrollment::whereIn('Enrollment.SectionID', $sections)
             ->join('Student', 'Enrollment.StudentID', '=', 'Student.StudentID')
             ->join('Section', 'Enrollment.SectionID', '=', 'Section.SectionID')
@@ -34,19 +34,19 @@ class InstructorEnrollmentController extends Controller
             )
             ->get();
 
-        Log::info("Fetched enrollments: ", $enrollments->toArray());
+        Log::info("✅ Fetched enrollments: ", $enrollments->toArray());
 
         return view('instructor.enrollments.index', compact('enrollments'));
     }
 
     /**
-     * Show the form for editing a specific enrollment.
+     * ✅ Show the form for editing a specific enrollment.
      */
     public function edit($id)
     {
         $instructorId = Auth::guard('instructor')->user()->InstructorID;
 
-        // Fetch the enrollment and ensure the instructor owns the section
+        // ✅ Fetch the enrollment and ensure the instructor owns the section
         $enrollment = Enrollment::join('Section', 'Enrollment.SectionID', '=', 'Section.SectionID')
             ->join('Course', 'Section.CourseID', '=', 'Course.CourseID')
             ->where('Enrollment.EnrollmentID', $id)
@@ -54,6 +54,7 @@ class InstructorEnrollmentController extends Controller
             ->select('Enrollment.*', 'Course.CourseName')
             ->first();
 
+        // ✅ If the enrollment is not found or unauthorized access, redirect
         if (!$enrollment) {
             return redirect()->route('instructor.dashboard')->with('error', 'Unauthorized access.');
         }
@@ -62,28 +63,30 @@ class InstructorEnrollmentController extends Controller
     }
 
     /**
-     * Update the specified enrollment in storage.
+     * ✅ Update the specified enrollment in storage.
      */
     public function update(Request $request, $id)
     {
         $instructorId = Auth::guard('instructor')->user()->InstructorID;
 
+        // ✅ Validate the request
         $request->validate([
-            'NumericMark' => 'required|numeric|min:0|max:100',
+            'NumericMark' => 'required|numeric|min:0|max:100', // Ensure numeric mark is between 0-100
         ]);
 
-        // Fetch the enrollment and ensure the instructor owns the section
+        // ✅ Fetch the enrollment and ensure the instructor owns the section
         $enrollment = Enrollment::join('Section', 'Enrollment.SectionID', '=', 'Section.SectionID')
             ->where('Enrollment.EnrollmentID', $id)
             ->where('Section.InstructorID', $instructorId)
             ->select('Enrollment.*')
             ->first();
 
+        // ✅ If unauthorized, redirect with an error message
         if (!$enrollment) {
             return redirect()->route('instructor.dashboard')->with('error', 'Unauthorized access.');
         }
 
-        // Update the numeric mark and calculate the alpha mark
+        // ✅ Update the numeric mark and calculate the alpha mark
         $enrollment->NumericMark = $request->input('NumericMark');
         $enrollment->AlphaMark = $this->calculateAlphaMark($enrollment->NumericMark);
         $enrollment->save();
@@ -93,7 +96,8 @@ class InstructorEnrollmentController extends Controller
     }
 
     /**
-     * Convert numeric mark to alpha grade.
+     * ✅ Convert numeric mark to alpha grade.
+     * - Uses standard grading scale to determine letter grade.
      */
     private function calculateAlphaMark($numericMark)
     {

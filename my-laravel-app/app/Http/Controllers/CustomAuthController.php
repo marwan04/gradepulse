@@ -11,12 +11,22 @@ use App\Models\Instructor;
 
 class CustomAuthController extends Controller
 {
+    /**
+     * ✅ Handle User Login
+     * This method authenticates students and instructors based on their email domain.
+     * 
+     * - Students (`@studentdomain.com`) → Redirects to `/student-dashboard`
+     * - Instructors (`@instructordomain.com`) → Redirects to `/instructor-dashboard` (or `/admin-dashboard` if RoleID = 1)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function login(Request $request)
     {
         // ✅ Validate login credentials
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email'    => 'required|email',  // Ensure valid email format
+            'password' => 'required',        // Password is required
         ]);
 
         $email = $request->input('email');
@@ -30,7 +40,9 @@ class CustomAuthController extends Controller
          * - Redirects to `/student-dashboard`
          */
         if (str_contains($email, '@studentdomain.com')) {
-            $user = Student::where('email', $email)->select(['StudentID', 'email', 'password'])->first();
+            $user = Student::where('email', $email)
+                ->select(['StudentID', 'email', 'password'])
+                ->first();
 
             if ($user) {
                 Log::info("🟢 Student Found: " . json_encode($user));
@@ -44,7 +56,7 @@ class CustomAuthController extends Controller
                     Log::info("✅ Student Login Successful - Redirecting to Student Dashboard.");
                     return redirect('/student-dashboard');
                 } else {
-                    Log::error("❌ Password Mismatch! Entered: " . $password);
+                    Log::error("❌ Password Mismatch!");
                     return redirect()->back()->withErrors(['password' => 'Incorrect password.']);
                 }
             }
@@ -56,7 +68,9 @@ class CustomAuthController extends Controller
          * - Redirects instructors/admins accordingly
          */
         elseif (str_contains($email, '@instructordomain.com')) {
-            $user = Instructor::where('email', $email)->select(['InstructorID', 'email', 'password', 'RoleID'])->first();
+            $user = Instructor::where('email', $email)
+                ->select(['InstructorID', 'email', 'password', 'RoleID'])
+                ->first();
 
             if ($user) {
                 Log::info("🟢 Instructor Found: " . json_encode($user));
@@ -80,7 +94,7 @@ class CustomAuthController extends Controller
                     Log::info("✅ Instructor Login Successful - Redirecting to Instructor Dashboard.");
                     return redirect('/instructor-dashboard');
                 } else {
-                    Log::error("❌ Password Mismatch! Entered: " . $password);
+                    Log::error("❌ Password Mismatch!");
                     return redirect()->back()->withErrors(['password' => 'Incorrect password.']);
                 }
             }

@@ -10,25 +10,40 @@ class Plan extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * ✅ Define the database table name
+     * Ensures Laravel correctly maps the model to the `Plan` table.
      */
-
     protected $table = 'Plan';
-    protected $fillable = [
-        'PlanName',
-        'RequiredCredits',
-    ];
+
+    /**
+     * ✅ Set the primary key field
+     * Since the primary key is not the default 'id', we explicitly define it.
+     */
     protected $primaryKey = 'PlanID';
 
+    /**
+     * ✅ Disable timestamps
+     * If the `Plan` table does not have `created_at` and `updated_at`, we disable timestamps.
+     */
     public $timestamps = false;
 
     /**
-     * Define the relationship with the Student model.
+     * ✅ Mass Assignable Attributes
+     * Specifies which attributes can be mass assigned using `Plan::create([...])`
+     */
+    protected $fillable = [
+        'PlanName',         // Name of the academic plan
+        'RequiredCredits',  // Number of credits required to complete the plan
+    ];
+
+    /**
+     * ✅ Relationship: Plan → Students (One-to-Many)
+     * A plan can be associated with multiple students.
+     * - `PlanID` is the foreign key in the `Student` table.
      */
     public function students()
     {
         return $this->hasMany(Student::class, 'PlanID');
     }
 }
+

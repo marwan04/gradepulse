@@ -3,46 +3,69 @@
 @section('title', 'Manage Students')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="fw-bold">🎓 Manage Students</h2>
+
+<style>
+    /* Hide navbar */
+    nav.navbar {
+        display: none !important;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">🎓 Manage Students</h2>
+
+        <!-- 🔙 Back Button -->
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+    </div>
+
+    <hr>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <a href="{{ route('admin.students.create') }}" class="btn btn-primary mb-3">➕ Add New Student</a>
+    <!-- ➕ Add New Student Button -->
+    <div class="mb-3 text-end">
+        <a href="{{ route('admin.students.create') }}" class="btn btn-primary">➕ Add New Student</a>
+    </div>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Student ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($students as $student)
+    <!-- 📋 Student Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle shadow-sm">
+            <thead class="table-dark text-center">
                 <tr>
-                    <td>{{ $student->StudentID }}</td>
-                    <td>{{ $student->Name }}</td>
-                    <td>{{ $student->Email }}</td>
-                    <td>{{ $student->Phone }}</td>
-                    <td>{{ $student->RoleID }}</td>
-                    <td>
-                        <a href="{{ route('admin.students.edit', $student->StudentID) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
-                        <form action="{{ route('admin.students.destroy', $student->StudentID) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
-                        </form>
-                    </td>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="text-center">
+                @foreach($students as $student)
+                    <tr>
+                        <td><strong>{{ $student->StudentID }}</strong></td>
+                        <td>{{ $student->Name }}</td>
+                        <td>{{ $student->Email }}</td>
+                        <td>{{ $student->Phone ?? 'N/A' }}</td>
+                        <td>{{ $student->RoleID ?? 'N/A' }}</td>
+                        <td>
+                            <a href="{{ route('admin.students.edit', $student->StudentID) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
+
+                            <form action="{{ route('admin.students.destroy', $student->StudentID) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
+
 @endsection
 

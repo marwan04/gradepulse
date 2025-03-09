@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Plan; // ✅ تأكد من استيراد مودل Plan
+use App\Models\Plan; // ✅ Ensure the Plan model is imported
 
 class PlanController extends Controller
 {
     /**
-     * عرض جميع الخطط الدراسية
+     * ✅ Display all academic plans.
+     * - Retrieves all plans from the database and passes them to the view.
      */
     public function index()
     {
@@ -17,7 +18,7 @@ class PlanController extends Controller
     }
 
     /**
-     * عرض نموذج إنشاء خطة جديدة
+     * ✅ Show the form for creating a new plan.
      */
     public function create()
     {
@@ -25,17 +26,18 @@ class PlanController extends Controller
     }
 
     /**
-     * تخزين خطة جديدة في قاعدة البيانات
+     * ✅ Store a new academic plan in the database.
+     * - Validates input data before creating a new plan.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'PlanName' => 'required|string|max:255',
+            'PlanName'        => 'required|string|max:255',
             'RequiredCredits' => 'required|integer|min:1',
         ]);
 
         Plan::create([
-            'PlanName' => $request->PlanName,
+            'PlanName'        => $request->PlanName,
             'RequiredCredits' => $request->RequiredCredits,
         ]);
 
@@ -43,7 +45,8 @@ class PlanController extends Controller
     }
 
     /**
-     * عرض نموذج تعديل خطة دراسية
+     * ✅ Show the form for editing an existing academic plan.
+     * - Ensures the requested plan exists before displaying the form.
      */
     public function edit($id)
     {
@@ -52,18 +55,19 @@ class PlanController extends Controller
     }
 
     /**
-     * تحديث بيانات الخطة الدراسية
+     * ✅ Update an existing academic plan in the database.
+     * - Validates input before updating the plan details.
      */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'PlanName' => 'required|string|max:255',
+            'PlanName'        => 'required|string|max:255',
             'RequiredCredits' => 'required|integer|min:1',
         ]);
 
         $plan = Plan::findOrFail($id);
         $plan->update([
-            'PlanName' => $request->PlanName,
+            'PlanName'        => $request->PlanName,
             'RequiredCredits' => $request->RequiredCredits,
         ]);
 
@@ -71,7 +75,8 @@ class PlanController extends Controller
     }
 
     /**
-     * حذف الخطة الدراسية
+     * ✅ Delete an academic plan from the database.
+     * - Ensures the plan is deleted and redirects with a success message.
      */
     public function destroy($id)
     {

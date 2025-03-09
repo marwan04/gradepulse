@@ -3,40 +3,59 @@
 @section('title', 'Manage Roles')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="fw-bold">🎭 Manage Roles</h2>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+<style>
+    /* Hide navbar */
+    nav.navbar {
+        display: none !important;
+    }
+</style>
 
-    <a href="{{ route('admin.roles.create') }}" class="btn btn-primary mb-3">➕ Add New Role</a>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">🎭 Manage Roles</h2>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Role ID</th>
-                <th>Role Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($roles as $role)
+        <!-- 🔙 Back Button -->
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+    </div>
+
+    <hr>
+
+    <!-- 🔵 Add Role Button -->
+    <div class="mb-3 text-end">
+        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">➕ Add New Role</a>
+    </div>
+
+    <!-- 📋 Roles Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle shadow-sm">
+            <thead class="table-dark text-center">
                 <tr>
-                    <td>{{ $role->RoleID }}</td>
-                    <td>{{ $role->RoleName }}</td>
-                    <td>
-                        <a href="{{ route('admin.roles.edit', $role) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
-                        <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
-                        </form>
-                    </td>
+                    <th>Role ID</th>
+                    <th>Role Name</th>
+                    <th>Actions</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="text-center">
+                @foreach($roles as $role)
+                    <tr>
+                        <td><strong>{{ $role->RoleID }}</strong></td>
+                        <td>{{ $role->RoleName }}</td>
+                        <td>
+                            <a href="{{ route('admin.roles.edit', $role) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
+
+                            <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">🗑 Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
+
 @endsection
 

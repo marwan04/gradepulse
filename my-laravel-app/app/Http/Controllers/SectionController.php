@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Log;
 class SectionController extends Controller
 {
     /**
-     * عرض قائمة الأقسام
+     * ✅ Display a list of all sections.
+     * - Retrieves sections with related course and instructor data.
      */
     public function index()
     {
@@ -20,7 +21,8 @@ class SectionController extends Controller
     }
 
     /**
-     * عرض نموذج إضافة قسم جديد
+     * ✅ Show the form for creating a new section.
+     * - Retrieves available courses and instructors.
      */
     public function create()
     {
@@ -31,33 +33,35 @@ class SectionController extends Controller
     }
 
     /**
-     * تخزين قسم جديد في قاعدة البيانات
+     * ✅ Store a newly created section in the database.
+     * - Validates input before inserting the record.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'semester' => 'required|string|max:20',
-            'year' => 'required|integer|min:2020',
-            'course_id' => 'required|exists:Course,CourseID',
-            'instructor_id' => 'required|exists:Instructor,InstructorID',
+            'semester'      => 'required|string|max:20',
+            'year'          => 'required|integer|min:2020',
+            'course_id'     => 'required|exists:Course,CourseID', // Ensure Course exists
+            'instructor_id' => 'required|exists:Instructor,InstructorID', // Ensure Instructor exists
         ]);
 
         Section::create([
-            'Semester' => $request->input('semester'),
-            'Year' => $request->input('year'),
-            'CourseID' => $request->input('course_id'),
+            'Semester'     => $request->input('semester'),
+            'Year'         => $request->input('year'),
+            'CourseID'     => $request->input('course_id'),
             'InstructorID' => $request->input('instructor_id'),
         ]);
 
-        return redirect()->route('admin.sections.index')->with('success', 'تم إنشاء القسم بنجاح!');
+        return redirect()->route('admin.sections.index')->with('success', 'Section created successfully!');
     }
 
     /**
-     * عرض نموذج تعديل قسم معين
+     * ✅ Show the form for editing a specific section.
+     * - Ensures the requested section exists before displaying the form.
      */
     public function edit($id)
     {
-        $section = Section::findOrFail($id); // ✅ جلب القسم من قاعدة البيانات
+        $section = Section::findOrFail($id); // ✅ Fetch section from database
         $courses = Course::all();
         $instructors = Instructor::all();
         
@@ -65,52 +69,64 @@ class SectionController extends Controller
     }
 
     /**
-     * تحديث بيانات القسم
+     * ✅ Update an existing section in the database.
+     * - Validates input and updates the section details.
      */
     public function update(Request $request, $id)
     {
-        Log::info("📌 تحديث القسم: ID => " . $id);
-        Log::info("📌 البيانات القادمة من الفورم: ", $request->all());
+        Log::info("📌 Updating section: ID => " . $id);
+        Log::info("📌 Form data received: ", $request->all());
 
         try {
             $validatedData = $request->validate([
-                'semester' => 'required|string|max:20',
-                'year' => 'required|integer|min:2020',
-                'course_id' => 'required|exists:Course,CourseID',
-                'instructor_id' => 'required|exists:Instructor,InstructorID',
+                'semester'      => 'required|string|max:20',
+                'year'          => 'required|integer|min:2020',
+                'course_id'     => 'required|exists:Course,CourseID', // Ensure Course exists
+                'instructor_id' => 'required|exists:Instructor,InstructorID', // Ensure Instructor exists
             ]);
 
-            Log::info("✅ التحقق من البيانات ناجح!", $validatedData);
+            Log::info("✅ Validation successful!", $validatedData);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error("❌ فشل التحقق من البيانات!", $e->errors());
+            Log::error("❌ Validation failed!", $e->errors());
             return redirect()->back()->withErrors($e->errors());
         }
 
         $section = Section::findOrFail($id);
-        Log::info("✅ القسم قبل التحديث: ", $section->toArray());
+        Log::info("✅ Section before update: ", $section->toArray());
 
-        // ✅ تنفيذ التحديث
+        // ✅ Update section details
         $section->update([
-            'Semester' => $request->input('semester'),
-            'Year' => $request->input('year'),
-            'CourseID' => $request->input('course_id'),
+            'Semester'     => $request->input('semester'),
+            'Year'         => $request->input('year'),
+            'CourseID'     => $request->input('course_id'),
             'InstructorID' => $request->input('instructor_id'),
         ]);
 
-        Log::info("✅ القسم بعد التحديث: ", $section->toArray());
+        Log::info("✅ Section after update: ", $section->toArray());
 
-        return redirect()->route('admin.sections.index')->with('success', 'تم تحديث القسم بنجاح!');
+        return redirect()->route('admin.sections.index')->with('success', 'Section updated successfully!');
     }
 
     /**
-     * حذف القسم
+     * ✅ Delete a section from the database.
+     * - Ensures the section is deleted and redirects with a success message.
      */
+
     public function destroy($id)
     {
-        $section = Section::findOrFail($id);
-        $section->delete();
+        try {
+            $section = Section::findOrFail($id);
 
-        return redirect()->route('admin.sections.index')->with('success', 'تم حذف القسم بنجاح!');
+            $section->delete(); // Attempt to delete
+
+            return redirect()->route('admin.sections.index')->with('success', 'Section deleted successfully!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == "23000") {
+                return redirect()->route('admin.sections.index')->with('error', 'Cannot delete this section because it is associated with enrollments.');
+            }
+            return redirect()->route('admin.sections.index')->with('error', 'An unexpected error occurred while deleting the section.');
+        }
     }
+
 }
 
