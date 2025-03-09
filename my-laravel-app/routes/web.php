@@ -15,6 +15,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentGradeController; // ✅ Added StudentGradeController
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -46,6 +47,12 @@ Route::post('/register', [CustomRegisterController::class, 'register']);
 */
 Route::middleware('auth:student')->group(function () {
     Route::get('/student-dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
+
+    // ✅ Student View Cumulative Grades
+    Route::get('/student/grades', [StudentGradeController::class, 'index'])->name('student.grades.index');
+
+    // ✅ Student View Grades by Semester
+    Route::get('/student/grades/semester/{semester}', [StudentGradeController::class, 'showSemester'])->name('student.grades.semester');
 });
 
 /*
